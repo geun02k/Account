@@ -41,7 +41,7 @@ dependencies {
         exclude group: "org.slf4j", module: "slf4j-simple"
     }
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.h2database:h2' // h2 DB 사용을 위한 의존성추가(애플리케이션 서버 띄울 때 자동으로 뜨도록 되어있음.)
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
