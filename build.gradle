@@ -24,9 +24,19 @@ repositories {
 }
 
 dependencies {
+    // JPA(Java Persistence API) 지원을 위한 의존성
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    // bean validation 지원을 위한 의존성 (bean validation : 객체에서 validation 처리가능)
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    // Spring을 활용한 Web(API) 개발을 위한 의존성 (웹서비스를 위한 백엔드 작업을 위한 가장 기본적인 의존성)
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    // redis client : redisson이라는 redis를 이용한 분산락을 지원하는 클라이언트
+    implementation 'org.redisson:redisson:3.17.1'
+    // embedded redis : 애플리케이션에서 간단히 테스트할 수 있는 레디스를 임베디드 형식으로
+    // 레디스는 단독으로 구축해놓고 여러 시스템들이 함께 사용하는 것이 일반적. (실제 운영에서는 절대 사용하면 안됨)
+    implementation('it.ozimov:embedded-redis:0.7.3') {
+        exclude group: "org.slf4j", module: "slf4j-simple"
+    }
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
