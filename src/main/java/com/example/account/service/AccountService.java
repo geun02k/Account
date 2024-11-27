@@ -32,4 +32,12 @@ public class AccountService {
         // Account Entity insert
         accountRepository.save(account);
     }
+
+    /** 계좌조회 */
+    @Transactional
+    public Account getAccount(Long id) {
+        // findById(id) : id를 통해 select 진행
+        // get() : optional로 값을 꺼내는 것은 추천하지 않는 방법이라 경고표시 존재.
+        return accountRepository.findById(id).get();
+    }
 }
