@@ -1,7 +1,9 @@
+
 package com.example.account.service;
 
 import com.example.account.domain.Account;
 import com.example.account.domain.AccountStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,13 +24,15 @@ class AccountServiceTest {
     @Autowired
     private AccountService accountService;
 
+    // 전체 테스트 메서드 수행 전 수행 (계좌생성)
+    @BeforeEach
+    void init() {
+        accountService.createAccount();
+    }
+
     // main함수가 아니지만 실행가능한 이유 : Junit 프레임워크가 대신 실행해주기 떄문.
     @Test
     void testGetAccount() {
-        // given
-        // 계좌 생성 : 현재 pk 1부터 자동생성
-        accountService.createAccount();
-
         // when
         Account account = accountService.getAccount(1L);
 
