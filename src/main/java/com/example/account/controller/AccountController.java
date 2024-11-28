@@ -2,6 +2,7 @@ package com.example.account.controller;
 
 import com.example.account.domain.Account;
 import com.example.account.service.AccountService;
+import com.example.account.service.RedisTestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AccountController {
     // 의존성주입 -> controller는 service에만 의존
     private final AccountService accountService;
+    private final RedisTestService redisTestService;
+
+    // Redis Lock Test API 생성
+    @GetMapping("/get-lock")
+    public String getLock() {
+        return redisTestService.getLock();
+    }
 
     // createAccount API 생성
     @GetMapping("/create-account")
