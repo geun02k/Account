@@ -40,4 +40,18 @@ class AccountServiceTest {
         assertEquals("40000", account.getAccountNumber());
         assertEquals(AccountStatus.IN_USE, account.getAccountStatus());
     }
+
+    // @BeforeEach가 각 메서드 수행전에 동작하기 때문에 testGetAccount2()를 수행하는 경우 성공하고,
+    // testGetAccount() 메서드의 getAccount(2L)로 했을 때는 실패한다.
+    // 동일 테스트코드인데 어떤 것은 성공하고 어떤 것은 실패하게 되는 것이다.
+    // 이를 해결하기위해 Mocking을 이용한다.
+//    @Test
+//    void testGetAccount2() {
+//        // when
+//        Account account = accountService.getAccount(2L);
+//
+//        // then
+//        assertEquals("40000", account.getAccountNumber());
+//        assertEquals(AccountStatus.IN_USE, account.getAccountStatus());
+//    }
 }
