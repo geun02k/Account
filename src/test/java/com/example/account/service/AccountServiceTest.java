@@ -77,7 +77,7 @@ class AccountServiceTest {
         Account account = accountService.getAccount(4555L);
 
         // then
-        // 1. vefity
+        // 1. verify
         //    : 의존하고 있는 Mock이 해당되는 동작을 수행했는지 확인하는 검증.
         // verify() : getAccount() 호출 시 accountRepository가 findById()를 1번 호출했음을 검증.
         // captor.capture() : findById의 결과는 Long타입의 ArgumentCaptor 박스를 이용해 저장
