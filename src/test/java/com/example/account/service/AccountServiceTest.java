@@ -4,6 +4,7 @@ package com.example.account.service;
 import com.example.account.domain.Account;
 import com.example.account.domain.AccountStatus;
 import com.example.account.repository.AccountRepository;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -58,6 +59,7 @@ class AccountServiceTest {
         내가 맡은 역할만 테스트가능.
      */
     @Test
+    @DisplayName("계좌조회성공")
     void testGetAccount() {
         // findById() 메서드 반환값은 Optional이므로 Optional타입의 Account를 반환해준다.
         // given
@@ -107,4 +109,18 @@ class AccountServiceTest {
         assertEquals(AccountStatus.UNREGISTERED, account.getAccountStatus());
     }
 
+    @Test
+    @DisplayName("계좌조회실패 - 음수로 조회")
+    void testFailedToSearchAccount() {
+        // given
+
+        // when
+        // 4. assertThrows : 에외를 던지는 로직을 테스트하는 방법
+        // getAccount() 수행시 RuntimeException 발생. 해당결과를 exception에 답음
+        RuntimeException exception = assertThrows(RuntimeException.class
+                , () -> accountService.getAccount(-10L));
+
+        // then
+        assertEquals("Minus", exception.getMessage());
+    }
 }
