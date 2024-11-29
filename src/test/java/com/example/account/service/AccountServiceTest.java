@@ -83,7 +83,10 @@ class AccountServiceTest {
         // getAccount() 호출 시 accountRepository가 한번도 저장하지 않음을 검증.
         verify(accountRepository, times(0)).save(any());
 
+        // 3. assertions : 다양한 단언(assertion) 방법들
         assertEquals(4555L, captor.getValue());
+        assertNotEquals(1111L, captor.getValue());
+        assertTrue(4555L == captor.getValue());
         assertEquals("65789", account.getAccountNumber());
         assertEquals(AccountStatus.UNREGISTERED, account.getAccountStatus());
     }
