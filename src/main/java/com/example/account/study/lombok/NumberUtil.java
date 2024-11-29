@@ -1,4 +1,4 @@
-package com.example.account;
+package com.example.account.study.lombok;
 
 import lombok.experimental.UtilityClass;
 

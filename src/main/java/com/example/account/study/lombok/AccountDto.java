@@ -1,4 +1,4 @@
-package com.example.account;
+package com.example.account.study.lombok;
 
 /** Lombok라이브러리 스터디 */
 
