@@ -10,11 +10,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import javax.security.auth.login.AccountException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 // @SpringBootTest
 // : org.springframework.boot:spring-boot-starter-test 에 포함된 기능
@@ -66,6 +70,13 @@ class AccountServiceTest {
         Account account = accountService.getAccount(4555L);
 
         // then
+        // 1. vefity
+        //    : 의존하고 있는 Mock이 해당되는 동작을 수행했는지 확인하는 검증.
+        // getAccount() 호출 시 accountRepository가 findById()를 1번 호출했음을 검증.
+        verify(accountRepository, times(1)).findById(anyLong());
+        // getAccount() 호출 시 accountRepository가 한번도 저장하지 않음을 검증.
+        verify(accountRepository, times(0)).save(any());
+
         assertEquals("65789", account.getAccountNumber());
         assertEquals(AccountStatus.UNREGISTERED, account.getAccountStatus());
     }
@@ -85,5 +96,4 @@ class AccountServiceTest {
         assertEquals("65789", account.getAccountNumber());
         assertEquals(AccountStatus.UNREGISTERED, account.getAccountStatus());
     }
-
 }
