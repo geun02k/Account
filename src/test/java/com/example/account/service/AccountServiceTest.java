@@ -6,6 +6,7 @@ import com.example.account.domain.AccountStatus;
 import com.example.account.repository.AccountRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -65,6 +66,10 @@ class AccountServiceTest {
                         .accountNumber("65789")
                         .accountStatus(AccountStatus.UNREGISTERED)
                         .build()));
+        // 2. ArgumentCaptor
+        //    : 의존하고 있는 Mock에 전달된 데이터가 내가 의도하는 데이터가 맞는지 검증.
+        // Long타입으로 ArgumentCaptor 생성 (ArgumentCaptor = 빈 박스같은 것)
+        ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
 
         // when
         Account account = accountService.getAccount(4555L);
@@ -72,11 +77,13 @@ class AccountServiceTest {
         // then
         // 1. vefity
         //    : 의존하고 있는 Mock이 해당되는 동작을 수행했는지 확인하는 검증.
-        // getAccount() 호출 시 accountRepository가 findById()를 1번 호출했음을 검증.
-        verify(accountRepository, times(1)).findById(anyLong());
+        // verify() : getAccount() 호출 시 accountRepository가 findById()를 1번 호출했음을 검증.
+        // captor.capture() : findById의 결과는 Long타입의 ArgumentCaptor 박스를 이용해 저장
+        verify(accountRepository, times(1)).findById(captor.capture());
         // getAccount() 호출 시 accountRepository가 한번도 저장하지 않음을 검증.
         verify(accountRepository, times(0)).save(any());
 
+        assertEquals(4555L, captor.getValue());
         assertEquals("65789", account.getAccountNumber());
         assertEquals(AccountStatus.UNREGISTERED, account.getAccountStatus());
     }
@@ -96,4 +103,5 @@ class AccountServiceTest {
         assertEquals("65789", account.getAccountNumber());
         assertEquals(AccountStatus.UNREGISTERED, account.getAccountStatus());
     }
+
 }
