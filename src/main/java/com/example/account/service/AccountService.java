@@ -1,12 +1,19 @@
 package com.example.account.service;
 
 import com.example.account.domain.Account;
-import com.example.account.domain.AccountStatus;
+import com.example.account.domain.AccountUser;
+import com.example.account.exception.AccountException;
 import com.example.account.repository.AccountRepository;
+import com.example.account.repository.AccountUserRepository;
+import com.example.account.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+
+import java.time.LocalDateTime;
+
+import static com.example.account.domain.AccountStatus.IN_USE;
 
 @Service // service타입 빈으로 등록
 @RequiredArgsConstructor // 필수 인자(final필드)만 가지는 생성자 자동생성
@@ -18,19 +25,44 @@ public class AccountService {
     // lombok의 @RequiredArgsConstructor : 생성자를 일일이 만들어 사용하지 않고 생성자주입 해결가능.
     // 필드 final 선언 -> 생성자를 통해서만 필드값을 초기화하고 그 외 변경불가. (final은 무조건 생성자에 포함되어있어야 한다.)
     private final AccountRepository accountRepository;
+    private final AccountUserRepository accountUserRepository;
 
-    /** 계좌생성 */
+    /** 계좌생성
+     * 1. 사용자 존재여부 확인
+     * 2. 계좌번호 생성
+     * 3. 계좌 저장 및 정보 전달
+     * @param userId 사용자ID
+     * @param initialBalance 초기잔액
+     */
     @Transactional
-    public void createAccount() { // Account테이블에 insert
-        // Account Entity 생성
-        // Account 클래스에 @Builder 어노테이션을 사용했기에 builder() 사용가능.
-        // id는 자동생성으로 추가x
-        Account account = Account.builder()
-                .accountNumber("40000")
-                .accountStatus(AccountStatus.IN_USE)
-                .build();
-        // Account Entity insert
-        accountRepository.save(account);
+    public Account createAccount(Long userId, Long initialBalance) {
+        // 1. 사용자 존재여부 확인
+        // findById()의 리턴값은 optional
+        // - 데이터 존재시 accountUser에 저장
+        // - optional에서 데이터 미존재시 'User Not Found' 에러발생.
+        // 비즈니스의 상황에 맞는 exception이 잘 없는 경우가 많기 때문에 커스텀 exception 사용.
+        AccountUser accountUser = accountUserRepository.findById(userId)
+                .orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
+
+        // 2. 계좌번호 생성 = 마지막계좌번호 + 1 (계좌번호는 총 10자리)
+        // - accountRepository.findFirstByOrderByIdDesc() 결과값 존재
+        //   -> 문자열 계좌번호를 숫자로 파싱 -> +1 -> 다시 문자열로 변환
+        // - accountRepository.findFirstByOrderByIdDesc() 결과값 미존재 = 계좌번호가 하나도 없음
+        //   -> 100000000로 계좌번호 생성
+        String newAccountNumber = accountRepository.findFirstByOrderByIdDesc()
+                .map(account -> (Integer.parseInt(account.getAccountNumber())) + 1 + "")
+                .orElse("1000000000");
+
+        // 3. 계좌 저장 및 정보 전달
+        return accountRepository.save(
+                Account.builder()
+                        .accountUser(accountUser)
+                        .accountStatus(IN_USE)
+                        .accountNumber(newAccountNumber)
+                        .balance(initialBalance)
+                        .registeredAt(LocalDateTime.now())
+                        .build()
+        );
     }
 
     /** 계좌조회 */
