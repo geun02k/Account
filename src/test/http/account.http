@@ -1,0 +1,10 @@
+// intellij에 포함되어있는 http요청 파일
+
+### create account
+POST http://localhost:8080/account
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "initialBalance": 10000
+}
