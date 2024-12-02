@@ -1,12 +1,14 @@
 package com.example.account.controller;
 
 import com.example.account.domain.Account;
+import com.example.account.dto.AccountDto;
+import com.example.account.dto.CreateAccount;
 import com.example.account.service.AccountService;
 import com.example.account.service.RedisTestService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 // 레이어 아키텍쳐
 // : 외부에서는 controller에만 접근,
@@ -26,11 +28,16 @@ public class AccountController {
         return redisTestService.getLock();
     }
 
-    // createAccount API 생성
-    @GetMapping("/create-account")
-    public String createAccount() {
-        accountService.createAccount();
-        return "success";
+    // 계좌생성 API 호출
+    @PostMapping("/account")
+    public CreateAccount.Response createAccount(
+            @RequestBody @Valid CreateAccount.Request request) {
+        return CreateAccount.Response.from(
+                accountService.createAccount(
+                    request.getUserId(),
+                    request.getInitialBalance()
+                )
+        );
     }
 
     // getAccount API 생성
