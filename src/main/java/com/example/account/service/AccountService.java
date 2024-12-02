@@ -2,6 +2,7 @@ package com.example.account.service;
 
 import com.example.account.domain.Account;
 import com.example.account.domain.AccountUser;
+import com.example.account.dto.AccountDto;
 import com.example.account.exception.AccountException;
 import com.example.account.repository.AccountRepository;
 import com.example.account.repository.AccountUserRepository;
@@ -27,6 +28,17 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final AccountUserRepository accountUserRepository;
 
+    // 반환값
+    // Entity 클래스는 다른 클래스와는 다른 성격을 지닌다.
+    // 클래스를 레이어간 주고받고 하게되면 Entity에서 레이즈 로딩을 하거나
+    // 추가적 쿼리를 날리려고 하면 트랜잭션이 없어 오류 발생 가능.
+    // Controller로 쿼리 결과를 전달할 떄
+    // Account의 일부 정보만 필요하거나 추가적 데이터가 더 필요할 수 있다.
+    // 이 때 Entity는 DB테이블과 1:1 매칭되기 떄문에 변경불가.
+    // So, Entity를 반환값으로 넘겨주기 보다는 Controller와 Service간 통신할 때 사용하는 별도의 DTO를 사용한다.
+    // 그러면 레이즈 로딩시 발생할 수 트랜잭션 문제를 해결할 수 있고,
+    // 전달할 데이터 변화에 대응하기 더 쉬운 구조가 된다.
+
     /** 계좌생성
      * 1. 사용자 존재여부 확인
      * 2. 계좌번호 생성
@@ -35,7 +47,7 @@ public class AccountService {
      * @param initialBalance 초기잔액
      */
     @Transactional
-    public Account createAccount(Long userId, Long initialBalance) {
+    public AccountDto createAccount(Long userId, Long initialBalance) {
         // 1. 사용자 존재여부 확인
         // findById()의 리턴값은 optional
         // - 데이터 존재시 accountUser에 저장
@@ -54,14 +66,14 @@ public class AccountService {
                 .orElse("1000000000");
 
         // 3. 계좌 저장 및 정보 전달
-        return accountRepository.save(
-                Account.builder()
+        return AccountDto.fromEntity(
+                accountRepository.save(Account.builder()
                         .accountUser(accountUser)
                         .accountStatus(IN_USE)
                         .accountNumber(newAccountNumber)
                         .balance(initialBalance)
                         .registeredAt(LocalDateTime.now())
-                        .build()
+                        .build())
         );
     }
 
