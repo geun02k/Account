@@ -1,9 +1,10 @@
 
-package com.example.account.service;
+package com.example.account.study;
 
 import com.example.account.domain.Account;
 import com.example.account.domain.AccountStatus;
 import com.example.account.repository.AccountRepository;
+import com.example.account.service.AccountService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,7 +13,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.security.auth.login.AccountException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,7 +36,7 @@ import static org.mockito.Mockito.verify;
 // Junit을 그대로 이용해서는 Mockito 기능 사용불가.
 // Mockito 확장팩을 테스트 클래스에 달아줌.
 @ExtendWith(MockitoExtension.class)
-class AccountServiceTest {
+class StudyAccountServiceTest {
     // accountService는 AccountRepository에 의존하고있다.
     // AccountRepository를 가짜로 생성해 AccountService에 의존성을 추가해준다.
 
