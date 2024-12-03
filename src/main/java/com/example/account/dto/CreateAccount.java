@@ -11,6 +11,7 @@ public class CreateAccount {
 
     @Getter
     @Setter
+    @AllArgsConstructor
     public static class Request {
         // 필드에 Validation 추가
         @NotNull
