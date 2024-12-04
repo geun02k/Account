@@ -19,7 +19,7 @@ public class CreateAccount {
         private Long userId;
 
         @NotNull
-        @Min(100)
+        @Min(0) // http 삭제요청 테스트를 위해 임의변경(계좌잔액이 0원 이상이면 해지불가)
         private Long initialBalance;
     }
 
