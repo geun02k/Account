@@ -1,6 +1,7 @@
 package com.example.account.service;
 
 import com.example.account.domain.Account;
+import com.example.account.domain.AccountStatus;
 import com.example.account.domain.AccountUser;
 import com.example.account.dto.AccountDto;
 import com.example.account.exception.AccountException;
@@ -83,6 +84,40 @@ public class AccountService {
         // 사용자의 계좌 수 = 최대 10건 이하
         if(accountRepository.countByAccountUser(accountUser) >= 10) {
             throw new AccountException(ErrorCode.MAX_ACCOUNT_PER_USER_10);
+        }
+    }
+
+    /** 계좌해지 */
+    @Transactional
+    public AccountDto deleteAccount(Long userId, String accountNumber) {
+        // 1. 사용자 존재여부 확인
+        AccountUser accountUser = accountUserRepository.findById(userId)
+                .orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
+        // 2. 계좌 존재여부 확인
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        validateDeleteAccount(accountUser, account);
+
+        //사용자아이디, 계좌번호, 해지일시 return
+        account.setAccountStatus(AccountStatus.UNREGISTERED);
+        account.setUnRegisteredAt(LocalDateTime.now());
+
+        return AccountDto.fromEntity(account);
+    }
+
+    private void validateDeleteAccount(AccountUser accountUser, Account account) {
+        // 사용자 아이디와 계좌 소유주가 일치여부 확인
+        if(!accountUser.getId().equals(account.getAccountUser().getId())) {
+            throw new AccountException(ErrorCode.USER_ACCOUNT_UN_MATCH);
+        }
+        // 계좌가 이미 해지 상태인 경우
+        if(account.getAccountStatus() == AccountStatus.UNREGISTERED) {
+            throw new AccountException(ErrorCode.ACCOUNT_ALREADY_UNREGISTERED);
+        }
+        // 잔액이 있는 경우
+        if(account.getBalance() > 0) {
+            throw new AccountException(ErrorCode.BALANCE_NOT_EMPTY);
         }
     }
 

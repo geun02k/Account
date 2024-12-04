@@ -30,4 +30,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     // 여기서 Account 내부에서 @ManyToOne 어노테이션을 통해 AccountUser를
     // 연관관계로 들고있기 때문에 countByAccountUser의 전달인자로 AccountUser 사용이 가능하다.
     Integer countByAccountUser(AccountUser accountUser);
+
+    // 계좌번호와 일치하는 계좌 조회
+    Optional<Account> findByAccountNumber(String AccountNumber);
 }
