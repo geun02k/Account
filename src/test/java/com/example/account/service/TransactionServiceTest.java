@@ -24,6 +24,7 @@ import java.util.Optional;
 import static com.example.account.domain.AccountStatus.IN_USE;
 import static com.example.account.type.TransactionResultType.F;
 import static com.example.account.type.TransactionResultType.S;
+import static com.example.account.type.TransactionType.CANCEL;
 import static com.example.account.type.TransactionType.USE;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -35,6 +36,7 @@ import static org.mockito.Mockito.verify;
 class TransactionServiceTest {
     private static final long USE_AMOUNT = 1000L;
     private static final long BALANCE = 9000L;
+    private static final long CANCEL_AMOUNT = 1000L;
 
     @Mock
     private TransactionRepository transactionRepository;
@@ -271,5 +273,64 @@ class TransactionServiceTest {
         assertEquals(ORG_BALANCE, captor.getValue().getBalanceSnapshot()); // 잔액 == 초기잔액
         assertEquals(F, captor.getValue().getTransactionResultType());
     }
+
+    @Test
+    void successCancelBalance() {
+        // given
+        AccountUser user = AccountUser.builder() // 사용자추가
+                .id(1L)
+                .name("Pobi").build();
+        Account account = Account.builder() // 계좌생성
+                .accountUser(user)
+                .accountStatus(IN_USE)
+                .balance(10000L) // 기존잔액
+                .accountNumber("1000000012").build();
+        Transaction transaction = Transaction.builder() // 잔액사용
+                .account(account)
+                .transactionType(USE)
+                .transactionResultType(S)
+                .transactionId("transactionIdForCancel")
+                .transactedAt(LocalDateTime.now())
+                .amount(USE_AMOUNT)
+                .balanceSnapshot(BALANCE)
+                .build();
+
+        // 1. 사용자 존재여부 확인 mocking
+        given(transactionRepository.findByTransactionId(anyString()))
+                .willReturn(Optional.of(transaction));
+
+        // 2. 계좌 존재여부 확인 mocking
+        given(accountRepository.findByAccountNumber(anyString()))
+                .willReturn(Optional.of(account));
+
+        // 3. 신규 거래내역 저장 mocking
+        given(transactionRepository.save(any()))
+                .willReturn(Transaction.builder()
+                        .account(account)
+                        .transactionType(CANCEL)
+                        .transactionResultType(S)
+                        .transactionId("transactionIdForCancel")
+                        .transactedAt(LocalDateTime.now())
+                        .amount(CANCEL_AMOUNT)
+                        .balanceSnapshot(10000L)
+                        .build());
+
+        ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
+
+        // when
+        TransactionDto transactionDto = transactionService.cancelBalance(
+                "transactionIdForCancel", "1000000000", CANCEL_AMOUNT);
+
+        // then
+        verify(transactionRepository, times(1)).save(captor.capture());
+        assertEquals(CANCEL_AMOUNT, captor.getValue().getAmount());
+        assertEquals(10000L + CANCEL_AMOUNT, captor.getValue().getBalanceSnapshot());
+
+        assertEquals(S, transactionDto.getTransactionResultType());
+        assertEquals(CANCEL, transactionDto.getTransactionType());
+        assertEquals(10000L, transactionDto.getBalanceSnapshot()); //잔액
+        assertEquals(CANCEL_AMOUNT, transactionDto.getAmount()); //사용취소금액
+    }
+
 
 }
