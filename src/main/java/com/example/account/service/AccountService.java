@@ -49,6 +49,7 @@ public class AccountService {
      * 3. 계좌 저장 및 정보 전달
      * @param userId 사용자ID
      * @param initialBalance 초기잔액
+     * @Return AccountDto 계좌정보
      */
     @Transactional
     public AccountDto createAccount(Long userId, Long initialBalance) {

@@ -12,6 +12,7 @@ import java.util.Optional;
    JpaRepository<Account, Long>
    JpaRepository 인터페이스 : Entity를 DB에 저장하기 위해서는 JAP에서 제공하는 repository 필요
                             스프링에서 JPA를 손쉽게 사용가능하도록 한다.
+                            구현체를 직접 생성하지 않는다.
    Account : repository가 활용할 Entity
    Long : Entity의 PK type
 */

@@ -18,6 +18,12 @@ import java.util.stream.Collectors;
 //   controller는 service에만 접근,
 //   service는 repository에 접근하는 계층화된 구조
 
+/**
+ * 계좌 관련 controller
+ * 1. 계좌 생성
+ * 2. 계좌 해지
+ * 3. 계좌목록 확인
+ */
 @RestController // controller타입 빈으로 등록
 @RequiredArgsConstructor
 public class AccountController {
