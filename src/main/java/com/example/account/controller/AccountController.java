@@ -25,12 +25,6 @@ public class AccountController {
     private final AccountService accountService;
     private final RedisTestService redisTestService;
 
-    // Redis Lock Test API 생성
-    @GetMapping("/get-lock")
-    public String getLock() {
-        return redisTestService.getLock();
-    }
-
     // 계좌생성 API 호출
     @PostMapping("/account")
     public CreateAccount.Response createAccount(
@@ -78,6 +72,11 @@ public class AccountController {
         return accountService.getAccount(id);
     }
 
+    // Redis Lock Test API 생성
+    @GetMapping("/get-lock")
+    public String getLock() {
+        return redisTestService.getLock();
+    }
 }
 
 
