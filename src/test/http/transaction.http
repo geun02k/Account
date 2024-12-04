@@ -9,3 +9,14 @@ Content-Type: application/json
   "accountNumber": "1000000000",
   "amount": 10000
 }
+
+### cancel balance
+// transactionId는  create account -> use balance 실행 후 나온 transactionId사용(난수로 use balance마다 매번 변경됨.)
+POST http://localhost:8080/transaction/cancel
+Content-Type: application/json
+
+{
+  "transactionId": "8e5be3de57364dcfbb07a4085b6e55be",
+  "accountNumber": "1000000000",
+  "amount": 10000
+}
