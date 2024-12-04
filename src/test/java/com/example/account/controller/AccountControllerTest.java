@@ -17,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -105,6 +107,39 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$.accountNumber").value("1234567890"))
                 .andDo(print());
 
+    }
+
+    @Test
+    void successGetAccountsByUserId() throws Exception {
+        // given
+        // 하나의 AccountDto 생성
+        // AccountDto.builder()
+        //  .accountNumber("1234567890")
+        //  .balance(1000L)
+        //  .build()
+        List<AccountDto> accountDtos =
+                Arrays.asList(
+                        AccountDto.builder()
+                            .accountNumber("1234567890")
+                            .balance(1000L)
+                            .build(),
+                        AccountDto.builder()
+                            .accountNumber("1111111111")
+                            .balance(2000L)
+                            .build()
+                );
+        given(accountService.getAccountsByUserId(anyLong()))
+                .willReturn(accountDtos);
+
+        // when
+
+        // then
+        mockMvc.perform(get("/account?user_id=1"))
+                .andDo(print())
+                .andExpect(jsonPath("$[0].accountNumber").value("1234567890"))
+                .andExpect(jsonPath("$[0].balance").value(1000))
+                .andExpect(jsonPath("$[1].accountNumber").value("1111111111"))
+                .andExpect(jsonPath("$[1].balance").value(2000));
     }
 
     // Service쪽 테스트할 때는 when에서 요청한 다음 결과를 받아 확인.
