@@ -9,6 +9,7 @@ import com.example.account.exception.AccountException;
 import com.example.account.repository.AccountRepository;
 import com.example.account.repository.AccountUserRepository;
 import com.example.account.repository.TransactionRepository;
+import com.example.account.type.TransactionResultType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,7 +54,7 @@ public class TransactionService {
                 .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
         // 2. 계좌 존재여부 확인
         Account account = accountRepository.findByAccountNumber(accountNumber)
-                        .orElseThrow(() -> new AccountException(ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new AccountException(ACCOUNT_NOT_FOUND));
         // 3. 사용자 아이디와 계좌 소유주 일치여부 확인
         //    계좌가 이미 해지 상태인지 확인
         //    거래금액이 잔액보다 큰지 확인
@@ -66,21 +67,9 @@ public class TransactionService {
 //        account.setBalance(accountBalance - amount);
 
         // 5. 신규 거래내역 저장 및 정보 전달
-        return TransactionDto.fromEntity(transactionRepository.save(
-                Transaction.builder()
-                        .transactionType(USE)
-                        .transactionResultType(S)
-                        .account(account)
-                        .amount(amount)
-                        .balanceSnapshot(account.getBalance())
-                        .transactionId(UUID.randomUUID().toString().replace("-", ""))
-                        .transactedAt(LocalDateTime.now())
-                        .build()
-        ));
-        // UUID.randomUUID().toString().replace("-", "")
-        // : UUID 사용
-        //   고유한 값 생성하는 방법 중 가장 검증이 많이되고 편리하고 쉬운 방법
-        //   생성된 UUID의 대시(-) 문자를 제거
+        return TransactionDto.fromEntity(
+                saveAndGetTransaction(S, amount, account)
+        );
     }
 
     private void validateUseBalance(AccountUser user, Account account, Long amount) {
@@ -106,10 +95,16 @@ public class TransactionService {
         Account account  = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountException(ACCOUNT_NOT_FOUND));
 
-        transactionRepository.save(
+        saveAndGetTransaction(F, amount, account);
+    }
+
+    private Transaction saveAndGetTransaction(TransactionResultType transactionResultType,
+                                              Long amount,
+                                              Account account) {
+        return transactionRepository.save(
                 Transaction.builder()
                         .transactionType(USE)
-                        .transactionResultType(F) // 실패
+                        .transactionResultType(transactionResultType) // 실패
                         .account(account)
                         .amount(amount)
                         .balanceSnapshot(account.getBalance())
@@ -117,5 +112,9 @@ public class TransactionService {
                         .transactedAt(LocalDateTime.now())
                         .build()
         );
+        // UUID.randomUUID().toString().replace("-", "")
+        // : UUID 사용
+        //   고유한 값 생성하는 방법 중 가장 검증이 많이되고 편리하고 쉬운 방법
+        //   생성된 UUID의 대시(-) 문자를 제거
     }
 }
