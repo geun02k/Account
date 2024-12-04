@@ -56,6 +56,8 @@ public class AccountService {
         AccountUser accountUser = accountUserRepository.findById(userId)
                 .orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
 
+        validateCreateAccount(accountUser);
+
         // 2. 계좌번호 생성 = 마지막계좌번호 + 1 (계좌번호는 총 10자리)
         // - accountRepository.findFirstByOrderByIdDesc() 결과값 존재
         //   -> 문자열 계좌번호를 숫자로 파싱 -> +1 -> 다시 문자열로 변환
@@ -75,6 +77,13 @@ public class AccountService {
                         .registeredAt(LocalDateTime.now())
                         .build())
         );
+    }
+
+    private void validateCreateAccount(AccountUser accountUser) {
+        // 사용자의 계좌 수 = 최대 10건 이하
+        if(accountRepository.countByAccountUser(accountUser) >= 10) {
+            throw new AccountException(ErrorCode.MAX_ACCOUNT_PER_USER_10);
+        }
     }
 
     /** 계좌조회 */

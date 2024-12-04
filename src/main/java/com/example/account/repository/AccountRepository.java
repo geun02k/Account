@@ -1,6 +1,7 @@
 package com.example.account.repository;
 
 import com.example.account.domain.Account;
+import com.example.account.domain.AccountUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,4 +24,10 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     //   단, 생성된 계좌가 하나도 없는 경우엔 값이 없을 수 있기 때문에
     //   Optional<Account> 타입으로 return 받음.
     Optional<Account> findFirstByOrderByIdDesc();
+
+    // 해당 유저의 총 계좌 수 조회
+    // AccountRepository는 JpaRepository<Account, Long>를 확장한 것이다.
+    // 여기서 Account 내부에서 @ManyToOne 어노테이션을 통해 AccountUser를
+    // 연관관계로 들고있기 때문에 countByAccountUser의 전달인자로 AccountUser 사용이 가능하다.
+    Integer countByAccountUser(AccountUser accountUser);
 }
