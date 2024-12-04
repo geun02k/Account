@@ -125,4 +125,25 @@ class AccountServiceTest {
         assertEquals("1000000000", captor.getValue().getAccountNumber());
     }
 
+    @Test
+    @DisplayName("유저당 최대 계좌 수인 10개 초과 - 계좌생성실패")
+    void createAccount_maxAccountIs10() {
+        // given
+        AccountUser user = AccountUser.builder()
+                .id(15L)
+                .name("Pobi").build();
+        // 1. 사용자 존재여부 확인 mocking
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.of(user));
+        // 2. 사용자의 계좌 수 확인 mocking
+        given(accountRepository.countByAccountUser(any()))
+                .willReturn(10);
+
+        // when
+        AccountException exception = assertThrows(AccountException.class,
+                () -> accountService.createAccount(1L, 1000L));
+
+        // then
+        assertEquals(ErrorCode.MAX_ACCOUNT_PER_USER_10, exception.getErrorCode());
+    }
 }
