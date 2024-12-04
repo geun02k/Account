@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.example.account.domain.AccountStatus.IN_USE;
+import static com.example.account.type.TransactionResultType.F;
 import static com.example.account.type.TransactionResultType.S;
 import static com.example.account.type.TransactionType.USE;
 import static org.junit.jupiter.api.Assertions.*;
@@ -227,5 +228,48 @@ class TransactionServiceTest {
         verify(transactionRepository, times(0)).save(any());
     }
 
+    @Test
+    void successSaveFailedUseTransaction() {
+        // given
+        final Long ORG_BALANCE = 10000L;
+        AccountUser user = AccountUser.builder()
+                .id(1L)
+                .name("Pobi").build();
+        Account account = Account.builder()
+                .accountUser(user)
+                .accountStatus(IN_USE)
+                .balance(ORG_BALANCE)
+                .accountNumber("1000000012").build();
+
+        // 1. 계좌 존재여부 확인 mocking
+        given(accountRepository.findByAccountNumber(anyString()))
+                .willReturn(Optional.of(account));
+
+        // 2. 신규 거래내역 저장 mocking
+        given(transactionRepository.save(any()))
+                .willReturn(Transaction.builder()
+                        .account(account)
+                        .transactionType(USE)
+                        .transactionResultType(S)
+                        .transactionId("transactionId")
+                        .transactedAt(LocalDateTime.now())
+                        .amount(USE_AMOUNT)
+                        .balanceSnapshot(BALANCE)
+                        .build());
+
+        ArgumentCaptor<Transaction> captor = ArgumentCaptor.forClass(Transaction.class);
+
+        // when
+        // 리턴값이 없기 때문에 결과확인불가.
+        // -> transactionRepository.save() 에서 저장할 떄 담기는 Entity의 정보를 캡쳐해
+        //    해당 정보를 확인해야 함.
+        transactionService.saveFailedUseTransaction("1000000000", USE_AMOUNT);
+
+        // then
+        verify(transactionRepository, times(1)).save(captor.capture());
+        assertEquals(USE_AMOUNT, captor.getValue().getAmount());
+        assertEquals(ORG_BALANCE, captor.getValue().getBalanceSnapshot()); // 잔액 == 초기잔액
+        assertEquals(F, captor.getValue().getTransactionResultType());
+    }
 
 }
