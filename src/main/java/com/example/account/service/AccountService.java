@@ -99,9 +99,16 @@ public class AccountService {
 
         validateDeleteAccount(accountUser, account);
 
-        //사용자아이디, 계좌번호, 해지일시 return
+        //사용자아이디, 계좌번호, 계좌상태, 해지일시 return
         account.setAccountStatus(AccountStatus.UNREGISTERED);
         account.setUnRegisteredAt(LocalDateTime.now());
+
+        // 아래의 save() 메서드를 사용하지 않아도 동작함.
+        // account에 상태값, 해지일시 등 업데이트 되는지 테스트코드에서 확인하기위해 추가.
+        // 아래의 방법이 아닌 다른 방법으로도 확인해볼 수 있음.
+        // 단, save() 메서드가 deleteAccount()에서 호출되면 혼돈을 줄 수 있음.
+        // (불필요한 코드가 추가되더라도 테스트가 원활한 게 더 좋은 경우도 있기 때문.)
+        accountRepository.save(account);
 
         return AccountDto.fromEntity(account);
     }
