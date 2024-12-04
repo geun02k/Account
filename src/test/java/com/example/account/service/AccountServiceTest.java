@@ -342,4 +342,20 @@ class AccountServiceTest {
         assertEquals(2000, accountDtos.get(1).getBalance());
     }
 
+    @Test
+    @DisplayName("해당유저없음 - 계좌조회실패")
+    void getAccountsFailed_UserNotFound() {
+        // given
+        // 1. 사용자 존재여부 확인 mocking
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.empty());
+
+        // when
+        AccountException exception = assertThrows(AccountException.class,
+                () -> accountService.getAccountsByUserId(1L));
+
+        // then
+        assertEquals(ErrorCode.USER_NOT_FOUND, exception.getErrorCode());
+    }
+
 }
