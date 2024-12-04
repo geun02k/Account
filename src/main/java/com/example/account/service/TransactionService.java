@@ -59,8 +59,10 @@ public class TransactionService {
         validateUseBalance(user, account, amount);
 
         // 4. 잔액 사용(잔액 변경)
-        Long accountBalance = account.getBalance();
-        account.setBalance(accountBalance - amount);
+        // 잔액을 가져오고 값을 변경할 필요없이 해당 메서드 호출로 해결가능.
+        account.useBalance(amount);
+//        Long accountBalance = account.getBalance();
+//        account.setBalance(accountBalance - amount);
 
         // 5. 신규 거래내역 저장 및 정보 전달
         return TransactionDto.fromEntity(transactionRepository.save(
