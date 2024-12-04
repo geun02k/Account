@@ -58,7 +58,7 @@ public class AccountService {
         // - optional에서 데이터 미존재시 'User Not Found' 에러발생.
         // 비즈니스의 상황에 맞는 exception이 잘 없는 경우가 많기 때문에 커스텀 exception 사용.
         AccountUser accountUser = accountUserRepository.findById(userId)
-                .orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
 
         validateCreateAccount(accountUser);
 
@@ -86,7 +86,7 @@ public class AccountService {
     private void validateCreateAccount(AccountUser accountUser) {
         // 사용자의 계좌 수 = 최대 10건 이하
         if(accountRepository.countByAccountUser(accountUser) >= 10) {
-            throw new AccountException(ErrorCode.MAX_ACCOUNT_PER_USER_10);
+            throw new AccountException(MAX_ACCOUNT_PER_USER_10);
         }
     }
 
@@ -95,10 +95,10 @@ public class AccountService {
     public AccountDto deleteAccount(Long userId, String accountNumber) {
         // 1. 사용자 존재여부 확인
         AccountUser accountUser = accountUserRepository.findById(userId)
-                .orElseThrow(() -> new AccountException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
         // 2. 계좌 존재여부 확인
         Account account = accountRepository.findByAccountNumber(accountNumber)
-                .orElseThrow(() -> new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
+                .orElseThrow(() -> new AccountException(ACCOUNT_NOT_FOUND));
 
         validateDeleteAccount(accountUser, account);
 
@@ -119,15 +119,15 @@ public class AccountService {
     private void validateDeleteAccount(AccountUser accountUser, Account account) {
         // 사용자 아이디와 계좌 소유주가 일치여부 확인
         if(!accountUser.getId().equals(account.getAccountUser().getId())) {
-            throw new AccountException(ErrorCode.USER_ACCOUNT_UN_MATCH);
+            throw new AccountException(USER_ACCOUNT_UN_MATCH);
         }
         // 계좌가 이미 해지 상태인 경우
         if(account.getAccountStatus() == AccountStatus.UNREGISTERED) {
-            throw new AccountException(ErrorCode.ACCOUNT_ALREADY_UNREGISTERED);
+            throw new AccountException(ACCOUNT_ALREADY_UNREGISTERED);
         }
         // 잔액이 있는 경우
         if(account.getBalance() > 0) {
-            throw new AccountException(ErrorCode.BALANCE_NOT_EMPTY);
+            throw new AccountException(BALANCE_NOT_EMPTY);
         }
     }
 
