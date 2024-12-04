@@ -5,6 +5,7 @@ import com.example.account.domain.AccountUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /*
@@ -33,4 +34,7 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     // 계좌번호와 일치하는 계좌 조회
     Optional<Account> findByAccountNumber(String AccountNumber);
+
+    // 해당 유저의 계좌목록 조회
+    List<Account> findByAccountUser(AccountUser accountUser);
 }

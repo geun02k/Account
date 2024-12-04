@@ -14,8 +14,11 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.example.account.domain.AccountStatus.IN_USE;
+import static com.example.account.type.ErrorCode.*;
 
 @Service // service타입 빈으로 등록
 @RequiredArgsConstructor // 필수 인자(final필드)만 가지는 생성자 자동생성
@@ -126,6 +129,23 @@ public class AccountService {
         if(account.getBalance() > 0) {
             throw new AccountException(ErrorCode.BALANCE_NOT_EMPTY);
         }
+    }
+
+    /** 계좌목록조회 */
+    @Transactional
+    public List<AccountDto> getAccountsByUserId(Long userId) {
+        AccountUser accountUser = accountUserRepository.findById(userId)
+                .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
+
+        List<Account> accounts = accountRepository.findByAccountUser(accountUser);
+
+        // accounts.stream() : List -> stream으로 변경
+        // map(AccountDto::fromEntity) : Account를 AccountDto 타입으로 변경
+        //                             = map(account -> AccountDto.fromEntity(account))
+        // collect(Collectors.toList()) : stream() -> List 형태로 변경
+        return accounts.stream()
+                .map(AccountDto::fromEntity)
+                .collect(Collectors.toList());
     }
 
     /** 계좌조회 */
