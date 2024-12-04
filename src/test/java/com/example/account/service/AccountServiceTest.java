@@ -72,8 +72,8 @@ class AccountServiceTest {
     }
 
     @Test
-    @DisplayName("계좌번호 저장내역없음")
-    void createFirstAccount() {
+    @DisplayName("해당유저없음 - 계좌생성실패")
+    void createAccount_UserNotFount() {
         // given
         // 1. 사용자 존재여부 확인 mocking
         // 현재 mocking에서 에러발생으로 다음로직의 mocking들은 의미없음 -> 제거
@@ -91,8 +91,8 @@ class AccountServiceTest {
     }
 
     @Test
-    @DisplayName("해당유저없음 - 계좌생성실패")
-    void createAccount_UserNotFount() {
+    @DisplayName("계좌번호 저장내역없음")
+    void createFirstAccount() {
         // given
         AccountUser user = AccountUser.builder()
                 .id(15L)
