@@ -17,6 +17,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -302,6 +304,42 @@ class AccountServiceTest {
 
         // then
         assertEquals(ErrorCode.ACCOUNT_ALREADY_UNREGISTERED, exception.getErrorCode());
+    }
+
+    @Test
+    void successGetAccountsByUserId() {
+        // given
+        AccountUser user = AccountUser.builder()
+                .id(1L)
+                .name("Pobi").build();
+        List<Account> accounts = Arrays.asList(
+                Account.builder()
+                        .accountUser(user)
+                        .accountNumber("1111111111")
+                        .balance(1000L)
+                        .build(),
+                Account.builder()
+                        .accountUser(user)
+                        .accountNumber("2222222222")
+                        .balance(2000L)
+                        .build()
+        );
+        // 1. 사용자 존재여부 확인 mocking
+        given(accountUserRepository.findById(anyLong()))
+                .willReturn(Optional.of(user));
+        // 2. 사용자의 계좌목록 조회 mocking
+        given(accountRepository.findByAccountUser(any()))
+                .willReturn(accounts);
+
+        // when
+        List<AccountDto> accountDtos = accountService.getAccountsByUserId(1L);
+
+        // then
+        assertEquals(2, accountDtos.size());
+        assertEquals("1111111111", accountDtos.get(0).getAccountNumber());
+        assertEquals(1000, accountDtos.get(0).getBalance());
+        assertEquals("2222222222", accountDtos.get(1).getAccountNumber());
+        assertEquals(2000, accountDtos.get(1).getBalance());
     }
 
 }
