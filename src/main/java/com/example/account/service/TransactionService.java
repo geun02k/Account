@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import static com.example.account.type.ErrorCode.*;
+import static com.example.account.type.TransactionResultType.F;
 import static com.example.account.type.TransactionResultType.S;
 import static com.example.account.type.TransactionType.USE;
 
@@ -97,5 +98,24 @@ public class TransactionService {
         if(account.getBalance() < amount) {
             throw new AccountException(AMOUNT_EXCEED_BALANCE);
         }
+    }
+
+    @Transactional
+    public void saveFailedUseTransaction(String accountNumber, Long amount) {
+        // 계좌 미존재시 거래기록 남기지 않음.
+        Account account  = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> new AccountException(ACCOUNT_NOT_FOUND));
+
+        transactionRepository.save(
+                Transaction.builder()
+                        .transactionType(USE)
+                        .transactionResultType(F) // 실패
+                        .account(account)
+                        .amount(amount)
+                        .balanceSnapshot(account.getBalance())
+                        .transactionId(UUID.randomUUID().toString().replace("-", ""))
+                        .transactedAt(LocalDateTime.now())
+                        .build()
+        );
     }
 }
