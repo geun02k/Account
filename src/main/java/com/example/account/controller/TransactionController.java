@@ -1,14 +1,13 @@
 package com.example.account.controller;
 
 import com.example.account.dto.CancelBalance;
+import com.example.account.dto.QueryTransactionResponse;
 import com.example.account.dto.UseBalance;
 import com.example.account.exception.AccountException;
 import com.example.account.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -47,7 +46,6 @@ public class TransactionController {
         }
     }
 
-    // 파라미터 :  거래아이디, 계좌번호, 취소요청금액
     @PostMapping("/transaction/cancel")
     public CancelBalance.Response cancelBalance(
             @Valid @RequestBody CancelBalance.Request request){
@@ -72,4 +70,15 @@ public class TransactionController {
         }
     }
 
+    // 실제 거래시에도 거래확인api를 항상 제공한다.
+    // 거래를 했는데 타임아웃이 발생하는 경우도 있다. (네트워크 이슈 또는 클라이언트의 딜레이 등의 문제 발생가능)
+    // 이런 경우 클라이언트가 정상적인 거래 응답을 받지 못할 수 있다.
+    @GetMapping("/transaction/{transactionId}")
+    public QueryTransactionResponse queryTransaction(
+            @PathVariable String transactionId) {
+
+        return QueryTransactionResponse.from(
+                transactionService.queryTransaction(transactionId)
+        );
+    }
 }

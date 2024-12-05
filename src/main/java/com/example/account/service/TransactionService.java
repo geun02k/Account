@@ -186,4 +186,14 @@ public class TransactionService {
 
         saveAndGetTransaction(CANCEL, F, amount, account);
     }
+
+
+    public TransactionDto queryTransaction(String transactionId) {
+        // transactionId에 해당하는 거래내역 조회 -> 정보 반환
+        // 거래 아이디에 해당하는 거래가 없는 경우 실패
+        return TransactionDto.fromEntity(
+                transactionRepository.findByTransactionId(transactionId)
+                    .orElseThrow(() -> new AccountException(TRANSACTION_NOT_FOUND))
+        );
+    }
 }
