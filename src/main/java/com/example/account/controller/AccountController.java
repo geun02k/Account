@@ -5,7 +5,6 @@ import com.example.account.dto.AccountInfo;
 import com.example.account.dto.CreateAccount;
 import com.example.account.dto.DeleteAccount;
 import com.example.account.service.AccountService;
-import com.example.account.service.RedisTestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,7 +28,6 @@ import java.util.stream.Collectors;
 public class AccountController {
     // 의존성주입 -> controller는 service에만 의존
     private final AccountService accountService;
-    private final RedisTestService redisTestService;
 
     // 계좌생성 API 호출
     @PostMapping("/account")
@@ -78,11 +76,6 @@ public class AccountController {
         return accountService.getAccount(id);
     }
 
-    // Redis Lock Test API 생성
-    @GetMapping("/get-lock")
-    public String getLock() {
-        return redisTestService.getLock();
-    }
 }
 
 
