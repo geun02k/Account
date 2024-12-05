@@ -538,4 +538,21 @@ class TransactionServiceTest {
         assertEquals(CANCEL_AMOUNT, transactionDto.getAmount());
         assertEquals("transactionId", transactionDto.getTransactionId());
     }
+
+    @Test
+    @DisplayName("해당거래내역없음 - 거래조회실패")
+    void queryTransactionFailed_TransactionNotFound() {
+        // given
+        // 1. 거래내역 존재여부 확인 mocking
+        given(transactionRepository.findByTransactionId(anyString()))
+                .willReturn(Optional.empty());
+
+        // when
+        AccountException exception = assertThrows(AccountException.class,
+                () -> transactionService.queryTransaction("transactionId"));
+
+        // then
+        assertEquals(ErrorCode.TRANSACTION_NOT_FOUND, exception.getErrorCode());
+    }
+
 }
