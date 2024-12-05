@@ -502,4 +502,40 @@ class TransactionServiceTest {
         // then
         assertEquals(ErrorCode.TOO_OLD_ORDER_TO_CANCEL, exception.getErrorCode());
     }
+
+    @Test
+    void successQueryTransaction() {
+        // given
+        AccountUser user = AccountUser.builder() // 사용자추가
+                .id(1L)
+                .name("Pobi").build();
+        Account account = Account.builder() // 계좌생성
+                .id(1L)
+                .accountUser(user)
+                .accountStatus(IN_USE)
+                .balance(10000L) // 기존잔액
+                .accountNumber("1000000012").build();
+        Transaction transaction = Transaction.builder() // 잔액사용
+                .account(account)
+                .transactionType(USE)
+                .transactionResultType(S)
+                .transactionId("transactionId")
+                .transactedAt(LocalDateTime.now().minusYears(1).minusDays(1))
+                .amount(CANCEL_AMOUNT)
+                .balanceSnapshot(BALANCE)
+                .build();
+
+        // 1. 거래내역 존재여부 확인 mocking
+        given(transactionRepository.findByTransactionId(anyString()))
+                .willReturn(Optional.of(transaction));
+
+        // when
+        TransactionDto transactionDto = transactionService.queryTransaction("trxId");
+
+        // then
+        assertEquals(USE, transactionDto.getTransactionType());
+        assertEquals(S, transactionDto.getTransactionResultType());
+        assertEquals(CANCEL_AMOUNT, transactionDto.getAmount());
+        assertEquals("transactionId", transactionDto.getTransactionId());
+    }
 }
