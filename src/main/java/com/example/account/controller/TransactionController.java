@@ -1,5 +1,6 @@
 package com.example.account.controller;
 
+import com.example.account.aop.AccountLock;
 import com.example.account.dto.CancelBalance;
 import com.example.account.dto.QueryTransactionResponse;
 import com.example.account.dto.UseBalance;
@@ -23,7 +24,12 @@ import javax.validation.Valid;
 public class TransactionController {
     private final TransactionService transactionService;
 
+    // @AccountLock
+    // 동시성 이슈 해결을 위해 거래 시 Lock을 걸고 해제하도록 함.
+    // 하지만 단지 어노테이션만 붙여준다고 어떤 기능을 수행하는 것은 아니다.
+    // 어노테이션이 달려있는 부분에서 동작을 하게되는 AOP Aspect를 만들어 동시성 제어를 하도록 한다.
     @PostMapping("/transaction/use")
+    @AccountLock // 동시성 이슈 해결을 위해 거래 시 Lock을 걸고 해제하도록 함.
     public UseBalance.Response useBalance(
             @Valid @RequestBody UseBalance.Request request){
 
@@ -47,6 +53,7 @@ public class TransactionController {
     }
 
     @PostMapping("/transaction/cancel")
+    @AccountLock
     public CancelBalance.Response cancelBalance(
             @Valid @RequestBody CancelBalance.Request request){
 
