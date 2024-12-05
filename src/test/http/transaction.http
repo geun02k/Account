@@ -9,6 +9,24 @@ Content-Type: application/json
   "accountNumber": "1000000000",
   "amount": 10000
 }
+### use balance1
+POST http://localhost:8080/transaction/use
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "accountNumber": "1000000000",
+  "amount": 100
+}
+### use balance2
+POST http://localhost:8080/transaction/use
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "accountNumber": "1000000000",
+  "amount": 200
+}
 
 ### cancel balance
 // transactionId는  create account -> use balance 실행 후 나온 transactionId사용(난수로 use balance마다 매번 변경됨.)

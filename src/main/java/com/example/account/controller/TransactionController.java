@@ -31,9 +31,16 @@ public class TransactionController {
     @PostMapping("/transaction/use")
     @AccountLock // 동시성 이슈 해결을 위해 거래 시 Lock을 걸고 해제하도록 함.
     public UseBalance.Response useBalance(
-            @Valid @RequestBody UseBalance.Request request){
+            @Valid @RequestBody UseBalance.Request request) throws InterruptedException {
 
         try {
+            // 거래중복방지 AOP 추가 후 Thread.sleep(5000L); 호출시 아래의 에러발생
+            //java.lang.IllegalMonitorStateException:
+            // attempt to unlock lock, not locked by current thread by node id: 350e1544-5ada-4f5c-80b2-b60931adae57 thread-id: 78
+            // 아직 Lock이 점유되지 않았는데 해제되어 문제발생.
+            // Thread.sleep(3000L); 으로 변경하고
+            // LockService.java 의 lock.tryLock(1, 5, TimeUnit.SECONDS) 부분에서 5->15로 변경
+            Thread.sleep(3000L);
             return UseBalance.Response.from(transactionService.useBalance(
                     request.getUserId(),
                     request.getAccountNumber(),
