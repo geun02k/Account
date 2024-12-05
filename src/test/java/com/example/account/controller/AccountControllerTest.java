@@ -5,9 +5,10 @@ import com.example.account.domain.AccountStatus;
 import com.example.account.dto.AccountDto;
 import com.example.account.dto.CreateAccount;
 import com.example.account.dto.DeleteAccount;
+import com.example.account.exception.AccountException;
 import com.example.account.service.AccountService;
 import com.example.account.service.RedisTestService;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.example.account.type.ErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -163,5 +163,21 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$.accountNumber").value("3456")) // body의 json 응답 데이터의 accountNumber 값은 3456으로 예상
                 .andExpect(jsonPath("$.accountStatus").value("IN_USE"))
                 .andExpect(status().isOk()); // 예상되는 결과(결과값은 ok로 예상)
+    }
+
+    @Test
+    void failedGetAccount() throws Exception {
+        // given
+        given(accountService.getAccount(anyLong()))
+                .willThrow(new AccountException(ErrorCode.ACCOUNT_NOT_FOUND));
+
+        // when
+
+        // then
+        mockMvc.perform(get("/account/876"))
+                .andDo(print())
+                .andExpect(jsonPath("$.errorCode").value("ACCOUNT_NOT_FOUND"))
+                .andExpect(jsonPath("$.errorMessage").value("계좌가 없습니다."))
+                .andExpect(status().isOk());
     }
 }
