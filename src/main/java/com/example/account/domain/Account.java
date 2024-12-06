@@ -3,9 +3,6 @@ package com.example.account.domain;
 import com.example.account.exception.AccountException;
 import com.example.account.type.ErrorCode;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -21,15 +18,9 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder // 상속 구조에서 @Builder를 쓰기엔 어려움이있다.
 @Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Account {
-    // @Id : Account테이블의 PK를 id로 지정.
-    @Id
-    @GeneratedValue
-    private Long id;
-
+public class Account extends BaseEntity {
     @ManyToOne // 계좌-유저는 n:1의 관계
     private AccountUser accountUser; //(user 사용하면 DB의 user테이블과 혼동 또는 예약어라 문제 발생여지 있으므로 변경)
 
@@ -46,13 +37,6 @@ public class Account {
 
     private LocalDateTime unRegisteredAt;
 
-    // JPA에서 createdAt, updatedAt 두 값은 테스트하기 번거롭다.
-    // @CreatedDate : 데이터는 자동으로 생성해 저장해주는 기능 제공.
-    @CreatedDate
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
 
     // 잔액을 변경하는 일 = 증요 데이터를 변경하는 일 -> 위험
     // 따라서 객체에 안에서 로직을 처리할 수 있도록

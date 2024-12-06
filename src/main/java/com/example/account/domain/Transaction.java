@@ -3,9 +3,6 @@ package com.example.account.domain;
 import com.example.account.type.TransactionResultType;
 import com.example.account.type.TransactionType;
 import lombok.*;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,12 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @Entity
-@EntityListeners(AuditingEntityListener.class)
-public class Transaction {
-    @Id // Transaction테이블의 PK를 id로 지정.
-    @GeneratedValue
-    private Long id;
-
+public class Transaction extends BaseEntity {
     @Enumerated(EnumType.STRING) // 입력한 enum 문자열이름을 그대로 DB에 저장.
     private TransactionType transactionType; // 사용, 사용취소
     @Enumerated(EnumType.STRING)
@@ -44,9 +36,4 @@ public class Transaction {
     //                (생성일시, 수정일시는 비지니스의 실제 시간으로 사용하지 않는다.
     //                추후 다른 값을 변경하면서 업데이트 될 수 있기 때문이다.)
     private LocalDateTime transactedAt;
-
-    @CreatedDate
-    private LocalDateTime createdAt;
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
 }
