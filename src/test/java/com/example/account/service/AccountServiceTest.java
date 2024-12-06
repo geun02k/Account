@@ -43,8 +43,8 @@ class AccountServiceTest {
     void createAccountSuccess() {
         // given
         AccountUser user = AccountUser.builder()
-                .id(12L)
                 .name("Pobi").build();
+        user.setId(12L);
         // 1. 사용자 존재여부 확인 mocking
         given(accountUserRepository.findById(anyLong()))
                 .willReturn(Optional.of(user));
@@ -97,8 +97,8 @@ class AccountServiceTest {
     void createFirstAccount() {
         // given
         AccountUser user = AccountUser.builder()
-                .id(15L)
                 .name("Pobi").build();
+        user.setId(15L);
         // 1. 사용자 존재여부 확인 mocking
         given(accountUserRepository.findById(anyLong()))
                 .willReturn(Optional.of(user));
@@ -131,8 +131,8 @@ class AccountServiceTest {
     void createAccount_maxAccountIs10() {
         // given
         AccountUser user = AccountUser.builder()
-                .id(15L)
                 .name("Pobi").build();
+        user.setId(15L);
         // 1. 사용자 존재여부 확인 mocking
         given(accountUserRepository.findById(anyLong()))
                 .willReturn(Optional.of(user));
@@ -152,8 +152,8 @@ class AccountServiceTest {
     void deleteAccountSuccess() {
         // given
         AccountUser user = AccountUser.builder()
-                .id(12L)
                 .name("Pobi").build();
+        user.setId(12L);
 
         // 1. 사용자 존재여부 확인 mocking
         given(accountUserRepository.findById(anyLong()))
@@ -200,8 +200,8 @@ class AccountServiceTest {
     void deleteAccountFailed_AccountNotFound() {
         // given
         AccountUser user = AccountUser.builder()
-                .id(12L)
                 .name("Pobi").build();
+        user.setId(12L);
 
         // 1. 사용자 존재여부 확인 mocking
         given(accountUserRepository.findById(anyLong()))
@@ -226,11 +226,11 @@ class AccountServiceTest {
     void deleteAccountFailed_UserAccountUnMatch() {
         // given
         AccountUser pobi = AccountUser.builder()
-                .id(12L)
                 .name("Pobi").build();
         AccountUser harry = AccountUser.builder()
-                .id(13L)
                 .name("Harry").build();
+        pobi.setId(12L);
+        harry.setId(13L);
 
         // 1. 사용자 존재여부 확인 mocking
         given(accountUserRepository.findById(anyLong()))
@@ -256,8 +256,8 @@ class AccountServiceTest {
     void deleteAccountFailed_BalanceNotEmpty() {
         // given
         AccountUser user = AccountUser.builder()
-                .id(12L)
                 .name("Pobi").build();
+        user.setId(12L);
 
         // 1. 사용자 존재여부 확인 mocking
         given(accountUserRepository.findById(anyLong()))
@@ -283,8 +283,8 @@ class AccountServiceTest {
     void deleteAccountFailed_AlreadyUnregistered() {
         // given
         AccountUser user = AccountUser.builder()
-                .id(12L)
                 .name("Pobi").build();
+        user.setId(12L);
 
         // 1. 사용자 존재여부 확인 mocking
         given(accountUserRepository.findById(anyLong()))
@@ -310,8 +310,8 @@ class AccountServiceTest {
     void successGetAccountsByUserId() {
         // given
         AccountUser user = AccountUser.builder()
-                .id(1L)
                 .name("Pobi").build();
+        user.setId(1L);
         List<Account> accounts = Arrays.asList(
                 Account.builder()
                         .accountUser(user)
