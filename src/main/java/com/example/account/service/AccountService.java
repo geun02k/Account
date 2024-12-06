@@ -7,7 +7,6 @@ import com.example.account.dto.AccountDto;
 import com.example.account.exception.AccountException;
 import com.example.account.repository.AccountRepository;
 import com.example.account.repository.AccountUserRepository;
-import com.example.account.type.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +18,26 @@ import java.util.stream.Collectors;
 
 import static com.example.account.domain.AccountStatus.IN_USE;
 import static com.example.account.type.ErrorCode.*;
+
+/** 리팩토링
+     : 동작을 변경하지 않으면서 내부 구조를 개선하는 작업.
+      생산성 향상 및 개인의 역량향상에 도움이된다. (리팩토링의 근본적인 이유)
+      잘 짜여진 테스트코드가 있다면 리팩토링을 거침없이 할 수 있다.
+      테스트코드를 믿고 기능에 영향없이 리팩터링 가능하기 때문이다.
+      (리팩터링하면서 기능 테스트를 매번 다시 실행하는 일을 반복하지 않아도 된다.)
+
+     - 목적
+    1. 가독성 향상
+    2. 유지보수성 향상 (중복코드제거, 복잡한구조개선)
+        if-else를 쓰지 않기 위해서 별도의 클래스를 만들어서 호출하는 형태로 사용한다.
+        클래스의 메서드를 호출하거나, 클래스에서 다른 클래스를 호출하는 식으로
+        점점 깊이 들어가는 구조를 발견하게 된다.
+        만약 신규기능을 추가해야 할 때 코드를 이해만 하고 신규기능을 추가하는 것이 아니라
+        현재 로직이 복잡한 구조를 가지고 있다면 리팩토링을 진행한 후 기능을 추가하는 것이 좋다.
+        그렇지 않으면 점점 더 복잡한 형태의 코드를 생성하게 되기 때문이다.
+    3. 안티패턴제거, 개발능력 향상 등
+        스프링 안티패턴, 자바 안티패턴 검색해 공부하는 것 추천.
+ */
 
 @Service // service타입 빈으로 등록
 @RequiredArgsConstructor // 필수 인자(final필드)만 가지는 생성자 자동생성
@@ -58,8 +77,7 @@ public class AccountService {
         // - 데이터 존재시 accountUser에 저장
         // - optional에서 데이터 미존재시 'User Not Found' 에러발생.
         // 비즈니스의 상황에 맞는 exception이 잘 없는 경우가 많기 때문에 커스텀 exception 사용.
-        AccountUser accountUser = accountUserRepository.findById(userId)
-                .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
+        AccountUser accountUser = getAccountUser(userId);
 
         validateCreateAccount(accountUser);
 
@@ -84,6 +102,12 @@ public class AccountService {
         );
     }
 
+    private AccountUser getAccountUser(Long userId) {
+        AccountUser accountUser = accountUserRepository.findById(userId)
+                .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
+        return accountUser;
+    }
+
     private void validateCreateAccount(AccountUser accountUser) {
         // 사용자의 계좌 수 = 최대 10건 이하
         if(accountRepository.countByAccountUser(accountUser) >= 10) {
@@ -95,8 +119,7 @@ public class AccountService {
     @Transactional
     public AccountDto deleteAccount(Long userId, String accountNumber) {
         // 1. 사용자 존재여부 확인
-        AccountUser accountUser = accountUserRepository.findById(userId)
-                .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
+        AccountUser accountUser = getAccountUser(userId);
         // 2. 계좌 존재여부 확인
         Account account = accountRepository.findByAccountNumber(accountNumber)
                 .orElseThrow(() -> new AccountException(ACCOUNT_NOT_FOUND));
@@ -135,9 +158,7 @@ public class AccountService {
     /** 계좌목록조회 */
     @Transactional
     public List<AccountDto> getAccountsByUserId(Long userId) {
-        AccountUser accountUser = accountUserRepository.findById(userId)
-                .orElseThrow(() -> new AccountException(USER_NOT_FOUND));
-
+        AccountUser accountUser = getAccountUser(userId);
         List<Account> accounts = accountRepository.findByAccountUser(accountUser);
 
         // accounts.stream() : List -> stream으로 변경
